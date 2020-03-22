@@ -10,8 +10,10 @@ async function run(): Promise<void> {
     const updateCmd = core.getInput('update_cmd')
     const workingDir = core.getInput('working_dir')
     const token = core.getInput('token')
+    const baseBranch = core.getInput('base_branch')
     const commitEmail = core.getInput('commit_email')
     const commitUsername = core.getInput('commit_username')
+    const commitTitle = core.getInput('commit_title')
 
     // by default this is just the root directory
     process.chdir(workingDir)
@@ -69,7 +71,7 @@ async function run(): Promise<void> {
     if (0 !== await exec.exec('git add Podfile.lock')) {
       throw Error("Couldn't add Podfile")
     }
-    if (0 !== await exec.exec('git commit -m "Update Pods"')) {
+    if (0 !== await exec.exec(`git commit -m ${ commitTitle }`)) {
       throw Error("Couldn't create commit")
     }
     if (0 !== await exec.exec(`git push -f https://x-access-token:${token}@github.com/${context.repo.owner}/${context.repo.repo}.git HEAD:refs/heads/${branch}`)) {
@@ -78,15 +80,15 @@ async function run(): Promise<void> {
   
     const createRequest = await github.pulls.create({
       ...context.repo,
-      title: "Update Pods",
-      base: context.ref,
+      title: commitTitle,
+      base: baseBranch,
       head: branch,
       body: markdownTable,
       maintainer_can_modify: true
     })
 
-    if (createRequest.status !== 200) {
-      throw Error("Issue creating Pull Request")
+    if (!(createRequest.status >= 200 && createRequest.status < 300)) {
+      throw Error(`Error creating pull request. Status: ${ createRequest.status }`)
     }
 
   } catch (error) {

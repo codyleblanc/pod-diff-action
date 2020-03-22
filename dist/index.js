@@ -6751,8 +6751,10 @@ function run() {
             const updateCmd = core.getInput('update_cmd');
             const workingDir = core.getInput('working_dir');
             const token = core.getInput('token');
+            const baseBranch = core.getInput('base_branch');
             const commitEmail = core.getInput('commit_email');
             const commitUsername = core.getInput('commit_username');
+            const commitTitle = core.getInput('commit_title');
             // by default this is just the root directory
             process.chdir(workingDir);
             // take a snapshot of the current lockfile before updating it
@@ -6793,15 +6795,15 @@ function run() {
             if (0 !== (yield exec.exec('git add Podfile.lock'))) {
                 throw Error("Couldn't add Podfile");
             }
-            if (0 !== (yield exec.exec('git commit -m "Update Pods"'))) {
+            if (0 !== (yield exec.exec(`git commit -m ${commitTitle}`))) {
                 throw Error("Couldn't create commit");
             }
             if (0 !== (yield exec.exec(`git push -f https://x-access-token:${token}@github.com/${github_1.context.repo.owner}/${github_1.context.repo.repo}.git HEAD:refs/heads/${branch}`))) {
                 throw Error("Couldn't couldn't push");
             }
-            const createRequest = yield github.pulls.create(Object.assign(Object.assign({}, github_1.context.repo), { title: "Update Pods", base: github_1.context.ref, head: branch, body: markdownTable, maintainer_can_modify: true }));
-            if (createRequest.status !== 200) {
-                throw Error("Issue creating Pull Request");
+            const createRequest = yield github.pulls.create(Object.assign(Object.assign({}, github_1.context.repo), { title: commitTitle, base: baseBranch, head: branch, body: markdownTable, maintainer_can_modify: true }));
+            if (!(createRequest.status >= 200 && createRequest.status < 300)) {
+                throw Error(`Error creating pull request. Status: ${createRequest.status}`);
             }
         }
         catch (error) {

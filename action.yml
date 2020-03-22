@@ -13,12 +13,19 @@ inputs:
   token:
     description: 'token to use to authenticate with GitHub'
     required: true
+  base_branch:
+    description: 'current base branch checked out'
+    required: true
   commit_email:
-    description: 'Email to use when committing the lockfile update'
+    description: 'email to use when committing the lockfile update'
     required: true
   commit_username:
-    description: 'Username to use when committing the lockfile update'
+    description: 'username to use when committing the lockfile update'
     required: true
+  commit_title:
+    description: 'Title of the commit message and the pull request'
+    required: false
+    default: 'Cocoapod Dependency Update'
 runs:
   using: 'node12'
   main: 'dist/index.js'

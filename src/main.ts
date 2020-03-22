@@ -19,12 +19,13 @@ async function run(): Promise<void> {
       './Podfile.lock'
     )
 
-    if (currentLockfile.podfileChecksum === newLockfile.podfileChecksum) {
-      core.info('Pods are already up-to-date')
+    const updates = getUpdates(currentLockfile, newLockfile)
+
+    if (updates.length === 0) {
+      core.info('Pods are all up-to-date')
       return
     }
 
-    const updates = getUpdates(currentLockfile, newLockfile)
     const updateRows = updates.map(update => {
       return update.tableRow
     })

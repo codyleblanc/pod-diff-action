@@ -3348,11 +3348,11 @@ function run() {
                 throw new Error('Pod Update Failed');
             }
             const newLockfile = yield cocoapods_lockfile_parser_1.LockfileParser.readFile('./Podfile.lock');
-            if (currentLockfile.podfileChecksum === newLockfile.podfileChecksum) {
-                core.info('Pods are already up-to-date');
+            const updates = getUpdates(currentLockfile, newLockfile);
+            if (updates.length === 0) {
+                core.info('Pods are all up-to-date');
                 return;
             }
-            const updates = getUpdates(currentLockfile, newLockfile);
             const updateRows = updates.map(update => {
                 return update.tableRow;
             });

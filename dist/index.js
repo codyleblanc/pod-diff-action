@@ -6752,9 +6752,10 @@ function run() {
             const workingDir = core.getInput('working_dir');
             const token = core.getInput('token');
             const baseBranch = core.getInput('base_branch');
+            const pullRequestTitle = core.getInput('pr_title');
             const commitEmail = core.getInput('commit_email');
             const commitUsername = core.getInput('commit_username');
-            const commitTitle = core.getInput('commit_title');
+            const commitMessage = core.getInput('commit_message');
             // by default this is just the root directory
             process.chdir(workingDir);
             // take a snapshot of the current lockfile before updating it
@@ -6795,13 +6796,13 @@ function run() {
             if (0 !== (yield exec.exec('git add Podfile.lock'))) {
                 throw Error("Couldn't add Podfile");
             }
-            if (0 !== (yield exec.exec(`git commit -m ${commitTitle}`))) {
+            if (0 !== (yield exec.exec(`git commit -m "${commitMessage}"`))) {
                 throw Error("Couldn't create commit");
             }
             if (0 !== (yield exec.exec(`git push -f https://x-access-token:${token}@github.com/${github_1.context.repo.owner}/${github_1.context.repo.repo}.git HEAD:refs/heads/${branch}`))) {
                 throw Error("Couldn't couldn't push");
             }
-            const createRequest = yield github.pulls.create(Object.assign(Object.assign({}, github_1.context.repo), { title: commitTitle, base: baseBranch, head: branch, body: markdownTable, maintainer_can_modify: true }));
+            const createRequest = yield github.pulls.create(Object.assign(Object.assign({}, github_1.context.repo), { title: pullRequestTitle, base: baseBranch, head: branch, body: markdownTable, maintainer_can_modify: true }));
             if (!(createRequest.status >= 200 && createRequest.status < 300)) {
                 throw Error(`Error creating pull request. Status: ${createRequest.status}`);
             }

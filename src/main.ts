@@ -11,9 +11,10 @@ async function run(): Promise<void> {
     const workingDir = core.getInput('working_dir')
     const token = core.getInput('token')
     const baseBranch = core.getInput('base_branch')
+    const pullRequestTitle = core.getInput('pr_title')
     const commitEmail = core.getInput('commit_email')
     const commitUsername = core.getInput('commit_username')
-    const commitTitle = core.getInput('commit_title')
+    const commitMessage = core.getInput('commit_message')
 
     // by default this is just the root directory
     process.chdir(workingDir)
@@ -71,7 +72,7 @@ async function run(): Promise<void> {
     if (0 !== await exec.exec('git add Podfile.lock')) {
       throw Error("Couldn't add Podfile")
     }
-    if (0 !== await exec.exec(`git commit -m ${ commitTitle }`)) {
+    if (0 !== await exec.exec(`git commit -m "${ commitMessage }"`)) {
       throw Error("Couldn't create commit")
     }
     if (0 !== await exec.exec(`git push -f https://x-access-token:${token}@github.com/${context.repo.owner}/${context.repo.repo}.git HEAD:refs/heads/${branch}`)) {
@@ -80,11 +81,11 @@ async function run(): Promise<void> {
   
     const createRequest = await github.pulls.create({
       ...context.repo,
-      title: commitTitle,
+      title: pullRequestTitle,
       base: baseBranch,
       head: branch,
       body: markdownTable,
-      maintainer_can_modify: true
+      maintainer_can_modify: true,
     })
 
     if (!(createRequest.status >= 200 && createRequest.status < 300)) {

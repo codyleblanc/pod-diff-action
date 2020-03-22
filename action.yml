@@ -16,16 +16,20 @@ inputs:
   base_branch:
     description: 'current base branch checked out'
     required: true
+  pr_title:
+    description: 'the title of the pull request'
+    required: false
+    default: 'Cocoapod Dependency Update 📦'
   commit_email:
     description: 'email to use when committing the lockfile update'
     required: true
   commit_username:
     description: 'username to use when committing the lockfile update'
     required: true
-  commit_title:
-    description: 'Title of the commit message and the pull request'
+  commit_message:
+    description: 'the commit message to use when commiting the update'
     required: false
-    default: 'Cocoapod Dependency Update'
+    default: 'Update cocoapods'
 runs:
   using: 'node12'
   main: 'dist/index.js'

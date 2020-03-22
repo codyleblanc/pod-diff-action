@@ -2,10 +2,23 @@ name: 'pod-diff-action'
 description: 'View outdated cocoapods'
 author: 'Cody LeBlanc'
 inputs:
-  custom_update_cmd:
+  update_cmd:
     description: 'custom command to run for updating pods'
     required: false
     default: 'pod update'
+  working_dir:
+    description: 'custom directory that includes the Podfile.lock'
+    required: false
+    default: './'
+  token:
+    description: 'token to use to authenticate with GitHub'
+    required: true
+  commit_email:
+    description: 'Email to use when committing the lockfile update'
+    required: true
+  commit_username:
+    description: 'Username to use when committing the lockfile update'
+    required: true
 runs:
   using: 'node12'
   main: 'dist/index.js'

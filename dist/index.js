@@ -6779,7 +6779,7 @@ function run() {
             core.info('Packages were updated:');
             core.info(markdownTable);
             const github = new github_1.GitHub(token);
-            const timestamp = Math.round(new Date().getTime() / 1000);
+            const timestamp = Math.round((new Date()).getTime() / 1000);
             const branch = `update_pods/${timestamp}`;
             if (0 !== (yield exec.exec(`git config --global user.name ${commitUsername}`))) {
                 throw Error("Couldn't set Username");
@@ -6796,13 +6796,12 @@ function run() {
             if (0 !== (yield exec.exec('git commit -m "Update Pods"'))) {
                 throw Error("Couldn't create commit");
             }
-            if (0 !==
-                (yield exec.exec(`git push -f https://x-access-token:${token}@github.com/${github_1.context.repo.repo}.git HEAD:refs/heads/${branch}`))) {
+            if (0 !== (yield exec.exec(`git push -f https://x-access-token:${token}@github.com/${github_1.context.repo.owner}/${github_1.context.repo.repo}.git HEAD:refs/heads/${branch}`))) {
                 throw Error("Couldn't couldn't push");
             }
-            const createRequest = yield github.pulls.create(Object.assign(Object.assign({}, github_1.context.repo), { title: 'Update Pods', base: github_1.context.ref, head: branch, body: markdownTable, maintainer_can_modify: true }));
+            const createRequest = yield github.pulls.create(Object.assign(Object.assign({}, github_1.context.repo), { title: "Update Pods", base: github_1.context.ref, head: branch, body: markdownTable, maintainer_can_modify: true }));
             if (createRequest.status !== 200) {
-                throw Error('Issue creating Pull Request');
+                throw Error("Issue creating Pull Request");
             }
         }
         catch (error) {

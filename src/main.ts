@@ -53,41 +53,32 @@ async function run(): Promise<void> {
 
     const github = new GitHub(token)
 
-    const timestamp = Math.round(new Date().getTime() / 1000)
-    const branch = `update_pods/${timestamp}`
+    const timestamp = Math.round((new Date()).getTime() / 1000);
+    const branch = `update_pods/${ timestamp }`
 
-    if (
-      0 !== (await exec.exec(`git config --global user.name ${commitUsername}`))
-    ) {
+    if (0 !== await exec.exec(`git config --global user.name ${ commitUsername }`)) {
       throw Error("Couldn't set Username")
     }
 
-    if (
-      0 !== (await exec.exec(`git config --global user.email ${commitEmail}`))
-    ) {
+    if (0 !== await exec.exec(`git config --global user.email ${ commitEmail }`)) {
       throw Error("Couldn't set Email")
     }
-    if (0 !== (await exec.exec(`git checkout -b ${branch}`))) {
+    if (0 !== await exec.exec(`git checkout -b ${ branch }`)) {
       throw Error("Couldn't create a new Branch")
     }
-    if (0 !== (await exec.exec('git add Podfile.lock'))) {
+    if (0 !== await exec.exec('git add Podfile.lock')) {
       throw Error("Couldn't add Podfile")
     }
-    if (0 !== (await exec.exec('git commit -m "Update Pods"'))) {
+    if (0 !== await exec.exec('git commit -m "Update Pods"')) {
       throw Error("Couldn't create commit")
     }
-    if (
-      0 !==
-      (await exec.exec(
-        `git push -f https://x-access-token:${token}@github.com/${context.repo.repo}.git HEAD:refs/heads/${branch}`
-      ))
-    ) {
+    if (0 !== await exec.exec(`git push -f https://x-access-token:${token}@github.com/${context.repo.owner}/${context.repo.repo}.git HEAD:refs/heads/${branch}`)) {
       throw Error("Couldn't couldn't push")
     }
-
+  
     const createRequest = await github.pulls.create({
       ...context.repo,
-      title: 'Update Pods',
+      title: "Update Pods",
       base: context.ref,
       head: branch,
       body: markdownTable,
@@ -95,8 +86,9 @@ async function run(): Promise<void> {
     })
 
     if (createRequest.status !== 200) {
-      throw Error('Issue creating Pull Request')
+      throw Error("Issue creating Pull Request")
     }
+
   } catch (error) {
     core.setFailed(error.message)
   }

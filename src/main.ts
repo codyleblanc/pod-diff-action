@@ -33,8 +33,8 @@ async function run(): Promise<void> {
       ['Name', 'Old Version', 'New Version'],
       ...updateRows
     ])
-
-    core.debug(markdownTable)
+    core.info('Packages were updated')
+    core.info(markdownTable)
   } catch (error) {
     core.setFailed(error.message)
   }
